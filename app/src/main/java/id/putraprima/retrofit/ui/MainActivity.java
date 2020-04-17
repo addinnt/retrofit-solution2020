@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
     Button loginButton, registerButton;
     EditText edtEmail,edtPassword;
     String email,password;
+    TextView txtname, txtversion;
+    SharedPreferences preference;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,13 @@ public class MainActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.bntToRegister);
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
+        txtname = findViewById(R.id.mainTxtAppName);
+        txtversion = findViewById(R.id.mainTxtAppVersion);
+        preference = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        editor = preference.edit();
+        //set app name sama versi
+        txtname.setText(preference.getString("appName", null));
+        txtversion.setText(preference.getString("appVersion", null));
     }
 
     public void handleLoginClick(View view) {
@@ -51,17 +61,27 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                if(response.isSuccessful()){
+                if(response.code()==200){
                     SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     SharedPreferences.Editor editor = preference.edit();
-                    editor.putString("token",response.body().getToken());
+                    editor.putString("token", response.body().getToken());
                     editor.apply();
-                    Intent i = new Intent(getApplicationContext(),ProfileActivity.class);
+                    Intent i = new Intent(getApplicationContext(), ProfileActivity.class);
                     startActivity(i);
-                }else{
+
+                }else if(response.code()==302){
                     ApiError error = ErrorUtils.parseError(response);
-                    Toast.makeText(MainActivity.this, error.getError().getEmail().get(0), Toast.LENGTH_SHORT).show();
+
+                    if (email.length() == 0) {
+                        Toast.makeText(MainActivity.this, error.getError().getEmail().get(0), Toast.LENGTH_SHORT).show();
+                    } else if (password.length() == 0) {
+                        Toast.makeText(MainActivity.this, error.getError().getPassword().get(0), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, error.getError().getEmail().get(0), Toast.LENGTH_SHORT).show();
+                    }
+
                 }
+
             }
 
             @Override
@@ -69,5 +89,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Gagal Koneksi", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void handleRegister(View view) {
+        Intent intent = new Intent(this, RegisterActivity.class);
+        startActivity(intent);
     }
 }

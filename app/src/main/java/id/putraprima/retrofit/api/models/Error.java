@@ -9,6 +9,14 @@ public class Error {
     @Expose
     private List<String> email = null;
 
+    @SerializedName("password")
+    @Expose
+    private List<String> password = null;
+
+    @SerializedName("name")
+    @Expose
+    private List<String> name = null;
+
     public List<String> getEmail() {
         return email;
     }
@@ -17,4 +25,19 @@ public class Error {
         this.email = email;
     }
 
+    public List<String> getPassword() {
+        return password;
+    }
+
+    public void setPassword(List<String> password) {
+        this.password = password;
+    }
+
+    public List<String> getName() {
+        return name;
+    }
+
+    public void setName(List<String> name) {
+        this.name = name;
+    }
 }
